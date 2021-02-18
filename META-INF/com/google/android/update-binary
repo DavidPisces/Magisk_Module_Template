@@ -1,6 +1,5 @@
 #!/sbin/sh
 ## 余空
-## 读取参数
 Start_Time=$(date "+%Y-%m-%d %H:%M:%S")
 Print_Time=$(date "+%m.%d %H:%M")
 
@@ -8,24 +7,27 @@ _grep_prop() {
   local REGEX="s/$1=//p"
   shift
   local FILES=$@
-  [ -z "$FILES" ] && FILES='/system/build.prop /vendor/build.prop /product/build.prop'
-  sed -n "$REGEX" $FILES 2>/dev/null | head -n 1
+  [[ -z $FILES ]] && FILES="/system/build.prop /vendor/build.prop /product/build.prop"
+  sed -n $REGEX $FILES 2>/dev/null | head -n 1
 }
 
-Device=`getprop ro.product.device`
-Name=`getprop ro.product.name`
-Market_Name=`getprop ro.product.marketname`
-Version=`getprop ro.build.version.incremental`
-Android=`getprop ro.build.version.release`
-CPU_ABI=`getprop ro.product.cpu.abi`
-Hardware=`getprop ro.boot.hardware`
-Model="$(_grep_prop 'ro\.product\.model')"
-[ -z "$Model" ] && Model="$(_grep_prop 'ro\.product\.vendor\.model')"
-Brand="$(_grep_prop 'ro\.product\.model')"
-[ -z "$Brand" ] && Brand="$(_grep_prop 'ro\.product\.vendor\.brand')"
+Device=$(getprop ro.product.device)
+Name=$(getprop ro.product.name)
+Market_Name=$(getprop ro.product.marketname)
+Version=$(getprop ro.build.version.incremental)
+Android=$(getprop ro.build.version.release)
+SDK=$(getprop ro.build.version.sdk)
+CPU_ABI=$(getprop ro.product.cpu.abi)
+Hardware=$(getprop ro.boot.hardware)
+Rom=$(getprop ro.build.display.id) 
+Kernel=$(uname -r) 
+Model=$(_grep_prop ro\.product\.model)
+[[ -z $Model ]] && Model=$(_grep_prop ro\.product\.vendor\.model)
+Brand=$(_grep_prop ro\.product\.model)
+[[ -z $Brand ]] && Brand=$(_grep_prop ro\.product\.vendor\.brand)
+[[ -e /sys/block/sda/size ]] && ROM_TYPE="UFS" || ROM_TYPE="eMMC"
+[[ -e /proc/scsi/scsi ]] && UFS_MODEL=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $2}') && Particles=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $4}') || UFS_MODEL="unknown"
 
-
-## 设置参数
 umask 022
 TMPDIR=/dev/tmp
 rm -rf $TMPDIR 2>/dev/null
@@ -109,22 +111,35 @@ print_modname() {
   sleep 0.1
   echo "- ※ Information ※"
   sleep 0.05
-  echo "- Brand：$Brand"
+  echo "- 厂商：$Brand"
   sleep 0.05
-  echo "- Device：$Device"
+  echo "- 代号：$Device"
   sleep 0.05
-  echo "- Model：$Model"
+  echo "- 型号：$Model"
   sleep 0.05
-  case "$Hardware" in
-    mt*)   echo "- Name：$Market_Name" && sleep 0.05 && echo "- Platform：$Hardware";;
-    *) echo "Name：$Name";;
+  case $Hardware in
+    mt*) echo "- 销售型号：$Market_Name" && sleep 0.05 && echo "- 处理器：$Hardware $(($(cat /sys/devices/system/cpu/kernel_max) + 1))核";;
+    *) ;;
   esac
   sleep 0.05
-  echo "- ABI：$CPU_ABI"
+  echo "- CPU架构：$CPU_ABI"
   sleep 0.05
-  echo "- Android：$Android"
+  echo "- Android 版本：$Android"
   sleep 0.05
-  echo "- Version：$Version"
+  echo "- Android SDK：$SDK"
+  sleep 0.05
+  echo "- ROM：$Rom"
+  sleep 0.05
+  echo "- ROM版本：$Version"
+  sleep 0.05
+  echo "- 内存大小：$(cat /proc/meminfo | head -n 1 | awk '{print $2/1000}')MB"
+  sleep 0.05
+  echo "- 闪存类型：$ROM_TYPE"
+  sleep 0.05
+  echo "- 闪存颗粒及大小：$UFS_MODEL $Particles"
+  sleep 0.05
+  echo "- 内核版本：$Kernel"
+  sleep 0.05
   echo "-------------------------------------"
   sleep 0.1
 }

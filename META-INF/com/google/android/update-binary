@@ -12,13 +12,13 @@ _grep_prop() {
   sed -n "$REGEX" $FILES 2>/dev/null | head -n 1
 }
 
-Market_Name=`getprop ro.product.marketname`
 Device=`getprop ro.product.device`
 Name=`getprop ro.product.name`
+Market_Name=`getprop ro.product.marketname`
 Version=`getprop ro.build.version.incremental`
 Android=`getprop ro.build.version.release`
 CPU_ABI=`getprop ro.product.cpu.abi`
-Mediatek=`getprop ro.boot.hardware`
+Hardware=`getprop ro.boot.hardware`
 Model="$(_grep_prop 'ro\.product\.model')"
 [ -z "$Model" ] && Model="$(_grep_prop 'ro\.product\.vendor\.model')"
 Brand="$(_grep_prop 'ro\.product\.model')"
@@ -40,7 +40,7 @@ fi
 
 
 ## 定义module.prop
-id=YuKong_MuBan
+id=YuKong_Module
 name='余空 模板'
 version=0218
 versionCode=210218
@@ -82,51 +82,51 @@ description=$description" > $TMPDIR/module.prop
 print_modname() {
   echo "-------------------------------------"
   echo "- 模块名称：$name"
-  sleep 0.1
+  sleep 0.05
   echo "- 模块版本：$version"
-  sleep 0.1
+  sleep 0.05
   echo "- 模块ID：$id"
-  sleep 0.1
+  sleep 0.05
   echo "- 模块制作：余空"
-  sleep 0.1
+  sleep 0.05
   echo "-------------------------------------"
   echo " 8b        d8           88      a8P"
-  sleep 0.05
+  sleep 0.02
   echo "  Y8,    ,8P            88    ,88'"
-  sleep 0.05
+  sleep 0.02
   echo "   Y8,  ,8P             88  ,88\""
-  sleep 0.05
+  sleep 0.02
   echo "    \"8aa8\"  88       88 88,d88'"
-  sleep 0.05
+  sleep 0.02
   echo "     \`88'   88       88 8888\"88,"
-  sleep 0.05
+  sleep 0.02
   echo "      88    88       88 88P   Y8b"
-  sleep 0.05
+  sleep 0.02
   echo "      88    \"8a,   ,a88 88     \"88,"
-  sleep 0.05
+  sleep 0.02
   echo "      88     \`\"YbbdP'Y8 88       Y8b"
   echo "-------------------------------------"
-  sleep 0.5
+  sleep 0.1
   echo "- ※ Information ※"
-  sleep 0.1
+  sleep 0.05
   echo "- Brand：$Brand"
-  sleep 0.1
+  sleep 0.05
   echo "- Device：$Device"
-  sleep 0.1
+  sleep 0.05
   echo "- Model：$Model"
-  sleep 0.1
-  case "$Mediatek" in
-    mt*)   echo "- Name：$Market_Name" && sleep 0.1 && echo "- Platform：$Mediatek";;
+  sleep 0.05
+  case "$Hardware" in
+    mt*)   echo "- Name：$Market_Name" && sleep 0.05 && echo "- Platform：$Hardware";;
     *) echo "Name：$Name";;
   esac
-  sleep 0.1
+  sleep 0.05
   echo "- ABI：$CPU_ABI"
-  sleep 0.1
+  sleep 0.05
   echo "- Android：$Android"
-  sleep 0.1
+  sleep 0.05
   echo "- Version：$Version"
   echo "-------------------------------------"
-  sleep 0.5
+  sleep 0.1
 }
 
 
@@ -146,10 +146,10 @@ on_install() {
 require_new_magisk() {
   echo
   echo "- 当前模块不支持此Magisk版本."
-  sleep 0.1
+  sleep 0.05
   echo "- 请安装 Magisk v20.3+ !"
   echo
-  sleep 0.1
+  sleep 0.05
   echo "- 或Magisk环境不完整，需修复环境 !"
   exit 1
 }
@@ -214,16 +214,14 @@ cd /
 $BOOTMODE || recovery_cleanup
 rm -rf $TMPDIR
 echo "-------------------------------------"
-sleep 0.1
+sleep 0.05
 echo "- 刷入时间：$Start_Time"
 echo
-End_Time () {
-  End_Time=$(date "+%Y-%m-%d %H:%M:%S")
-  Duration=$(echo $((Sleep_Time + $(date +%s -d "${End_Time}") - $(date +%s -d "${Start_Time}"))) | awk '{t=split("60 秒 60 分 24 时 999 天",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}')
-  echo "- 耗时：$Duration"
-}
-End_Time
-sleep 0.1
+sleep 0.05
+End_Time=$(date "+%Y-%m-%d %H:%M:%S")
+Duration=$(echo $((Sleep_Time + $(date +%s -d "${End_Time}") - $(date +%s -d "${Start_Time}"))) | awk '{t=split("60 秒 60 分 24 时 999 天",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}')
+echo "- 耗时：$Duration"
 echo
+sleep 0.05
 echo "- 完成"
 exit 0

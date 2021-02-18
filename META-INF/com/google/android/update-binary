@@ -1,0 +1,229 @@
+#!/sbin/sh
+## 余空
+## 读取参数
+Start_Time=$(date "+%Y-%m-%d %H:%M:%S")
+Print_Time=$(date "+%m.%d %H:%M")
+
+_grep_prop() {
+  local REGEX="s/$1=//p"
+  shift
+  local FILES=$@
+  [ -z "$FILES" ] && FILES='/system/build.prop /vendor/build.prop /product/build.prop'
+  sed -n "$REGEX" $FILES 2>/dev/null | head -n 1
+}
+
+Market_Name=`getprop ro.product.marketname`
+Device=`getprop ro.product.device`
+Name=`getprop ro.product.name`
+Version=`getprop ro.build.version.incremental`
+Android=`getprop ro.build.version.release`
+CPU_ABI=`getprop ro.product.cpu.abi`
+Mediatek=`getprop ro.boot.hardware`
+Model="$(_grep_prop 'ro\.product\.model')"
+[ -z "$Model" ] && Model="$(_grep_prop 'ro\.product\.vendor\.model')"
+Brand="$(_grep_prop 'ro\.product\.model')"
+[ -z "$Brand" ] && Brand="$(_grep_prop 'ro\.product\.vendor\.brand')"
+
+
+## 设置参数
+umask 022
+TMPDIR=/dev/tmp
+rm -rf $TMPDIR 2>/dev/null
+mkdir -p $TMPDIR
+OUTFD=$2
+ZIPFILE=$3
+if [ $Android -ge 11 ]; then
+  PERSISTDIR=/dev/*/.magisk/mirror/persist
+else
+  PERSISTDIR=/sbin/.magisk/mirror/persist
+fi
+
+
+## 定义module.prop
+id=YuKong_MuBan
+name='余空 模板'
+version=0218
+versionCode=210218
+author=余空
+description='模块介绍.此为模板.'
+
+Ver=版本：$version，刷入时间：$Print_Time
+
+
+## 输出module.prop
+echo "id=$id
+name=$name
+version=$Ver
+versionCode=$versionCode
+author=$author
+description=$description" > $TMPDIR/module.prop
+
+
+## 输出system.prop
+#echo '    ' > $TMPDIR/system.prop
+
+
+## 输出service.sh
+#echo '#!/system/bin/sh
+#MODDIR=${0%/*}' > $TMPDIR/service.sh
+
+
+## 输出uninstall.sh
+#echo '#!/system/bin/sh
+#MODDIR=${0%/*}' > $TMPDIR/uninstall.sh
+
+
+## 输出post-fs-data.sh
+#echo '#!/system/bin/sh
+#MODDIR=${0%/*}' > $TMPDIR/post-fs-data.sh
+
+
+## 打印模块描述
+print_modname() {
+  echo "-------------------------------------"
+  echo "- 模块名称：$name"
+  sleep 0.1
+  echo "- 模块版本：$version"
+  sleep 0.1
+  echo "- 模块ID：$id"
+  sleep 0.1
+  echo "- 模块制作：余空"
+  sleep 0.1
+  echo "-------------------------------------"
+  echo " 8b        d8           88      a8P"
+  sleep 0.05
+  echo "  Y8,    ,8P            88    ,88'"
+  sleep 0.05
+  echo "   Y8,  ,8P             88  ,88\""
+  sleep 0.05
+  echo "    \"8aa8\"  88       88 88,d88'"
+  sleep 0.05
+  echo "     \`88'   88       88 8888\"88,"
+  sleep 0.05
+  echo "      88    88       88 88P   Y8b"
+  sleep 0.05
+  echo "      88    \"8a,   ,a88 88     \"88,"
+  sleep 0.05
+  echo "      88     \`\"YbbdP'Y8 88       Y8b"
+  echo "-------------------------------------"
+  sleep 0.5
+  echo "- ※ Information ※"
+  sleep 0.1
+  echo "- Brand：$Brand"
+  sleep 0.1
+  echo "- Device：$Device"
+  sleep 0.1
+  echo "- Model：$Model"
+  sleep 0.1
+  case "$Mediatek" in
+    mt*)   echo "- Name：$Market_Name" && sleep 0.1 && echo "- Platform：$Mediatek";;
+    *) echo "Name：$Name";;
+  esac
+  sleep 0.1
+  echo "- ABI：$CPU_ABI"
+  sleep 0.1
+  echo "- Android：$Android"
+  sleep 0.1
+  echo "- Version：$Version"
+  echo "-------------------------------------"
+  sleep 0.5
+}
+
+
+## 执行安装模块
+on_install() {
+  echo "- 正在刷入..."
+  unzip -o "$ZIPFILE" -x 'META-INF/*' -d $MODPATH >&2
+  echo
+  echo "- 正在设置权限..."
+  set_perm_recursive $MODPATH 0 0 0755 0644
+  echo
+  echo"- 设置完成"
+}
+
+
+## 不支持刷入提示
+require_new_magisk() {
+  echo
+  echo "- 当前模块不支持此Magisk版本."
+  sleep 0.1
+  echo "- 请安装 Magisk v20.3+ !"
+  echo
+  sleep 0.1
+  echo "- 或Magisk环境不完整，需修复环境 !"
+  exit 1
+}
+
+mount /data 2>/dev/null
+
+[ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
+. /data/adb/magisk/util_functions.sh
+[ $MAGISK_VER_CODE -gt 18100 ] || require_new_magisk
+
+setup_flashable
+
+mount_partitions
+
+api_level_arch_detect
+
+$BOOTMODE && boot_actions || recovery_actions
+
+unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
+[ ! -f $TMPDIR/module.prop ] && abort "! 从 zip 中提取文件失败!"
+
+$BOOTMODE && MODDIRNAME=modules_update || MODDIRNAME=modules
+MODULEROOT=$NVBASE/$MODDIRNAME
+MODID=`grep_prop id $TMPDIR/module.prop`
+MODPATH=$MODULEROOT/$MODID
+MODNAME=`grep_prop name $TMPDIR/module.prop`
+
+rm -rf $MODPATH 2>/dev/null
+mkdir -p $MODPATH
+
+cp -r $TMPDIR/module.prop $MODPATH/module.prop
+cp -r $TMPDIR/system.prop $MODPATH/system.prop
+cp -r $TMPDIR/service.sh $MODPATH/service.sh
+cp -r $TMPDIR/uninstall.sh $MODPATH/uninstall.sh
+cp -r $TMPDIR/post-fs-data.sh $MODPATH/post-fs-data.sh
+
+print_modname
+on_install
+
+for TARGET in $REPLACE; do
+  echo "- 正在删除目标文件：$TARGET"
+  mktouch $MODPATH$TARGET/.replace
+done
+
+if $BOOTMODE; then
+  mktouch $NVBASE/modules/$MODID/update
+  cp -af $MODPATH/module.prop $NVBASE/modules/$MODID/module.prop
+fi
+
+if [ -f $MODPATH/sepolicy.rule -a -e $PERSISTDIR ]; then
+  echo "- 安装自定义sepolicy补丁"
+  PERSISTMOD=$PERSISTDIR/magisk/$MODID
+  mkdir -p $PERSISTMOD
+  cp -af $MODPATH/sepolicy.rule $PERSISTMOD/sepolicy.rule
+fi
+
+rm -rf \
+$MODPATH/system/placeholder $MODPATH/customize.sh \
+$MODPATH/README.md $MODPATH/.git* 2>/dev/null
+
+cd /
+$BOOTMODE || recovery_cleanup
+rm -rf $TMPDIR
+echo "-------------------------------------"
+sleep 0.1
+echo "- 刷入时间：$Start_Time"
+echo
+End_Time () {
+  End_Time=$(date "+%Y-%m-%d %H:%M:%S")
+  Duration=$(echo $((Sleep_Time + $(date +%s -d "${End_Time}") - $(date +%s -d "${Start_Time}"))) | awk '{t=split("60 秒 60 分 24 时 999 天",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}')
+  echo "- 耗时：$Duration"
+}
+End_Time
+sleep 0.1
+echo
+echo "- 完成"
+exit 0

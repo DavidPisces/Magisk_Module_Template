@@ -83,13 +83,13 @@ description=$description" > $TMPDIR/module.prop
 ## 打印模块描述
 print_modname() {
   echo "-------------------------------------"
-  echo "- 模块名称：$name"
+  printf "%-15s %-s\n" "- 模块名称:" "$name"
   sleep 0.05
-  echo "- 模块版本：$version"
+  printf "%-15s %-s\n" "- 模块版本:" "$version"
   sleep 0.05
-  echo "- 模块ID：$id"
+  printf "%-15s %-s\n" "- 模块代号:" "$id"
   sleep 0.05
-  echo "- 模块制作：余空"
+  printf "%-15s %-s\n" "- 模块制作:" "余空"
   sleep 0.05
   echo "-------------------------------------"
   echo " 8b        d8           88      a8P"
@@ -111,34 +111,32 @@ print_modname() {
   sleep 0.1
   echo "- ※ Information ※"
   sleep 0.05
-  echo "- 厂商：$Brand"
+  printf "%-15s %-s\n" "- 厂商信息:" "$Brand"
   sleep 0.05
-  echo "- 代号：$Device"
+  printf "%-15s %-s\n" "- 设备代号:" "$Device"
   sleep 0.05
-  echo "- 型号：$Model"
+  printf "%-15s %-s\n" "- 设备型号:" "$Model"
   sleep 0.05
   case $Hardware in
-    mt*) echo "- 销售型号：$Market_Name" && sleep 0.05 && echo "- 处理器：$Hardware $(($(cat /sys/devices/system/cpu/kernel_max) + 1))核";;
+    mt*) printf "%-15s %-s\n" "- 销售型号:" "$Market_Name" && sleep 0.05 && printf "%-15s %-s\n" "- 芯片型号:" "$Hardware $(($(cat /sys/devices/system/cpu/kernel_max) + 1))核";;
     *) ;;
   esac
   sleep 0.05
-  echo "- CPU架构：$CPU_ABI"
+  printf "%-15s %-s\n" "- 芯片架构:" "$CPU_ABI"
   sleep 0.05
-  echo "- Android 版本：$Android"
+  printf "%-15s %-s\n" "- 安卓版本:" "Android $Android"
   sleep 0.05
-  echo "- Android SDK：$SDK"
+  printf "%-15s %-s\n" "- 系统版本:" "$Version"
   sleep 0.05
-  echo "- ROM：$Rom"
+  printf "%-15s %-s\n" "- 基线版本:" "$Rom"
   sleep 0.05
-  echo "- ROM版本：$Version"
+  printf "%-15s %-s\n" "- 内存大小:" "$(cat /proc/meminfo | head -n 1 | awk '{print $2/1000}')MB"
   sleep 0.05
-  echo "- 内存大小：$(cat /proc/meminfo | head -n 1 | awk '{print $2/1000}')MB"
+  printf "%-15s %-s\n" "- 闪存类型:" "$ROM_TYPE"
   sleep 0.05
-  echo "- 闪存类型：$ROM_TYPE"
+  printf "%-15s %-s\n" "- 闪存颗粒:" "$UFS_MODEL $Particles"
   sleep 0.05
-  echo "- 闪存颗粒及大小：$UFS_MODEL $Particles"
-  sleep 0.05
-  echo "- 内核版本：$Kernel"
+  printf "%-15s %-s\n" "- 内核版本:" "$Kernel"
   sleep 0.05
   echo "-------------------------------------"
   sleep 0.1
@@ -231,11 +229,11 @@ $BOOTMODE || recovery_cleanup
 rm -rf $TMPDIR
 echo "-------------------------------------"
 sleep 0.05
-echo "- 刷入时间：$Start_Time"
+printf "%-15s %-s\n" "- 刷入时间:" "$Start_Time"
 echo
 End_Time=$(date "+%Y-%m-%d %H:%M:%S")
 Duration=$(echo $((Sleep_Time + $(date +%s -d "${End_Time}") - $(date +%s -d "${Start_Time}"))) | awk '{t=split("60 秒 60 分 24 时 999 天",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}')
-echo "- 刷入耗时：$Duration"
+printf "%-15s %-s\n" "- 刷入耗时:" "$Duration"
 sleep 0.02
 echo
 echo "- 完成"

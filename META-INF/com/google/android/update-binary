@@ -10,21 +10,21 @@ _grep_prop() {
   [[ -z $FILES ]] && FILES="/system/build.prop /vendor/build.prop /product/build.prop"
   sed -n $REGEX $FILES 2>/dev/null | head -n 1
 }
-
-Device=$(getprop ro.product.device)
-Name=$(getprop ro.product.name)
-Market_Name=$(getprop ro.product.marketname)
-Version=$(getprop ro.build.version.incremental)
-Android=$(getprop ro.build.version.release)
-SDK=$(getprop ro.build.version.sdk)
-CPU_ABI=$(getprop ro.product.cpu.abi)
-Hardware=$(getprop ro.boot.hardware)
-Rom=$(getprop ro.build.display.id) 
-Kernel=$(uname -r) 
 Model=$(_grep_prop ro\.product\.model)
 [[ -z $Model ]] && Model=$(_grep_prop ro\.product\.vendor\.model)
 Brand=$(_grep_prop ro\.product\.model)
 [[ -z $Brand ]] && Brand=$(_grep_prop ro\.product\.vendor\.brand)
+
+Kernel=$(uname -r)
+Rom=$(getprop ro.build.display.id)
+Device=$(getprop ro.product.device)
+SDK=$(getprop ro.build.version.sdk)
+Hardware=$(getprop ro.boot.hardware)
+CPU_ABI=$(getprop ro.product.cpu.abi)
+Android=$(getprop ro.build.version.release)
+Market_Name=$(getprop ro.product.marketname)
+Version=$(getprop ro.build.version.incremental)
+
 [[ -e /sys/block/sda/size ]] && ROM_TYPE="UFS" || ROM_TYPE="eMMC"
 [[ -e /proc/scsi/scsi ]] && UFS_MODEL=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $2}') && Particles=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $4}') || UFS_MODEL="unknown"
 
@@ -34,7 +34,7 @@ rm -rf $TMPDIR 2>/dev/null
 mkdir -p $TMPDIR
 OUTFD=$2
 ZIPFILE=$3
-if [ $Android -ge 11 ]; then
+if [[ $Android -ge 11 ]]; then
   PERSISTDIR=/dev/*/.magisk/mirror/persist
 else
   PERSISTDIR=/sbin/.magisk/mirror/persist
@@ -202,6 +202,7 @@ cp -r $TMPDIR/uninstall.sh $MODPATH/uninstall.sh
 cp -r $TMPDIR/post-fs-data.sh $MODPATH/post-fs-data.sh
 
 print_modname
+
 on_install
 
 for TARGET in $REPLACE; do
@@ -232,11 +233,10 @@ echo "-------------------------------------"
 sleep 0.05
 echo "- 刷入时间：$Start_Time"
 echo
-sleep 0.05
 End_Time=$(date "+%Y-%m-%d %H:%M:%S")
 Duration=$(echo $((Sleep_Time + $(date +%s -d "${End_Time}") - $(date +%s -d "${Start_Time}"))) | awk '{t=split("60 秒 60 分 24 时 999 天",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}')
 echo "- 刷入耗时：$Duration"
+sleep 0.02
 echo
-sleep 0.05
 echo "- 完成"
 exit 0

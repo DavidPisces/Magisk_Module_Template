@@ -82,7 +82,9 @@ description=$description" > $TMPDIR/module.prop
 
 ## 打印模块描述
 print_modname() {
-  echo "-------------------------------------"
+  echo "______________"
+  echo "  ※ 作者信息 ※"
+  echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
   echo " 8b        d8           88      a8P"
   sleep 0.02
   echo "  Y8,    ,8P            88    ,88'"
@@ -98,7 +100,6 @@ print_modname() {
   echo "      88    \"8a,   ,a88 88     \"88,"
   sleep 0.02
   echo "      88     \`\"YbbdP'Y8 88       Y8b"
-  echo "-------------------------------------"
   echo "______________"
   echo "  ※ 模块信息 ※"
   echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯"

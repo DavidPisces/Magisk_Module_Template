@@ -3,6 +3,8 @@
 ############################################
 
 #MAGISK_VERSION_STUB
+MAGISK_VER='22.0'
+MAGISK_VER_CODE=22000
 
 ###################
 # Helper Functions

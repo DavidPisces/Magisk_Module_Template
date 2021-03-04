@@ -1,5 +1,6 @@
 # Magisk_Module_Template
-## 仅自用
+
+**仅自用**
 
 `该Magisk模版的结构`
 ```

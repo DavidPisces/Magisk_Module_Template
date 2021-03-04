@@ -74,6 +74,8 @@ description=$description" > $TMPDIR/module.prop
 #echo '#!/system/bin/sh
 #MODDIR=${0%/*}' > $TMPDIR/post-fs-data.sh
 
+##sepolicy.rule
+#echo '    ' > $TMPDIR/sepolicy.rule
 
 ## 打印模块描述
 print_modname() {
@@ -191,6 +193,7 @@ cp -r $TMPDIR/system.prop $MODPATH/system.prop
 cp -r $TMPDIR/service.sh $MODPATH/service.sh
 cp -r $TMPDIR/uninstall.sh $MODPATH/uninstall.sh
 cp -r $TMPDIR/post-fs-data.sh $MODPATH/post-fs-data.sh
+cp -r $TMPDIR/sepolicy.rule $MODPATH/sepolicy.rule
 
 print_modname
 install_module

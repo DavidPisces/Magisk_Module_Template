@@ -141,8 +141,6 @@ print_modname() {
     sleep 0.1
 }
 
-# echo before loading util_functions
-ui_print() { echo "$1"; }
 
 ## 安装模块
 install_module() {
@@ -168,6 +166,9 @@ require_new_magisk() {
     exit 1
 }
 
+
+# echo before loading util_functions
+ui_print() { echo "$1"; }
 
 #########################
 # Load util_functions.sh

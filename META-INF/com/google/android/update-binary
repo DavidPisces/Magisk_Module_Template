@@ -1,9 +1,9 @@
 #!/sbin/sh
 ## 余空
 
-#################
-### 初始化 
-#################
+#########
+# 初始化
+#########
 umask 022
 
 Start_Time=$(date "+%Y-%m-%d %H:%M:%S")
@@ -165,20 +165,25 @@ require_new_magisk() {
 }
 
 
-# echo before loading util_functions
-ui_print() { echo "$1"; }
-
 #########################
-# Load util_functions.sh
+# 加载 util_functions.sh
 #########################
 OUTFD=$2
 ZIPFILE=$3
 
 mount /data 2>/dev/null
+unzip -o "$ZIPFILE" 'tools/*' -d $TMPDIR >&2
 
-[ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
-. /data/adb/magisk/util_functions.sh
-[ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
+if [[ -f /data/adb/magisk/util_functions.sh ]];then
+    . /data/adb/magisk/util_functions.sh
+else
+    if [[ -f $TMPDIR/tools/util_functions.sh ]];then
+        . $TMPDIR/tools/util_functions.sh
+    else
+        ui_print "- 安装失败."
+        exit 1
+    fi
+fi
 
 cp -r $TMPDIR/module.prop $MODPATH/module.prop
 cp -r $TMPDIR/system.prop $MODPATH/system.prop

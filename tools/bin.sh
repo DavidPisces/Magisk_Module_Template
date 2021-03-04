@@ -24,7 +24,7 @@ Add_path () {
                 fi
             fi
         fi
-        [[ ! -e $filepath/$1 ]] && echo "错误: $filepath/$1不存在" && exit 1
+        [[ ! -e $filepath/$1 ]] && echo "错误 $filepath/$1不存在" && exit 1
         export PATH=$filepath
         [[ ! $PATH == $filepath ]] && echo "环境变量位置错误" && exit 1
     else

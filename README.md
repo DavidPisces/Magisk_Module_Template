@@ -1,8 +1,9 @@
-# Magisk Module 模板
+# Magisk_Module_Template
+## 仅自用
 
-`这是Magisk模块最基础的结构及说明`
+`该Magisk模版的结构`
 ```
-Magisk-Modules-Template(20.4+).zip
+Magisk_Module_Template.zip
 │
 ├── META-INF
 │   └── com
@@ -18,4 +19,4 @@ Magisk-Modules-Template(20.4+).zip
 ```
 ### [module_installer.sh](https://github.com/topjohnwu/Magisk/blob/master/scripts/module_installer.sh)
 ### based on [Magisk 官方文档](https://topjohnwu.github.io/Magisk/guides.html)
-![bc5c7a34fee614e08839b511a5840873.jpg](https://i.loli.net/2020/01/30/fOFvI2o9KXqEkJr.jpg)
+![logo.png](https://cdn.jsdelivr.net/gh/topjohnwu/Magisk@master/docs/images/logo.png)

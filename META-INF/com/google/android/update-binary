@@ -185,6 +185,8 @@ else
     fi
 fi
 
+[[ $MAGISK_VER_CODE -lt 20400 ]] && require_new_magisk
+
 cp -r $TMPDIR/module.prop $MODPATH/module.prop
 cp -r $TMPDIR/system.prop $MODPATH/system.prop
 cp -r $TMPDIR/service.sh $MODPATH/service.sh

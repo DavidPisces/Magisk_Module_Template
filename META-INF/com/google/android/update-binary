@@ -2,11 +2,13 @@
 ## 余空
 
 #################
-# Initialization
+### 初始化 
 #################
 umask 022
+
 Start_Time=$(date "+%Y-%m-%d %H:%M:%S")
 Print_Time=$(date "+%m.%d %H:%M")
+
 _grep_prop() {
     local REGEX="s/$1=//p"
     shift
@@ -14,6 +16,7 @@ _grep_prop() {
     [[ -z $FILES ]] && FILES="/system/build.prop /vendor/build.prop /product/build.prop"
     sed -n $REGEX $FILES 2>/dev/null | head -n 1
 }
+
 Model=$(_grep_prop ro\.product\.model)
 [[ -z $Model ]] && Model=$(_grep_prop ro\.product\.vendor\.model)
 Brand=$(_grep_prop ro\.product\.model)
@@ -30,12 +33,6 @@ Version=$(getprop ro.build.version.incremental)
 [[ -e /sys/block/sda/size ]] && ROM_TYPE="UFS" || ROM_TYPE="eMMC"
 [[ -e /proc/scsi/scsi ]] && UFS_MODEL=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $2}') && Particles=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $4}') || UFS_MODEL="unknown"
 
-if [[ $Android -ge 11 ]]; then
-    PERSISTDIR=/dev/*/.magisk/mirror/persist
-else
-    PERSISTDIR=/sbin/.magisk/mirror/persist
-fi
-
 
 ## 定义module.prop
 id=YuKong_Module
@@ -48,6 +45,7 @@ description='模块介绍.此为模板.'
 
 ## 输出module.prop
 Ver=版本：$version，刷入时间：$Print_Time
+
 echo "id=$id
 name=$name
 version=$Ver
@@ -77,7 +75,7 @@ description=$description" > $TMPDIR/module.prop
 ##sepolicy.rule
 #echo '    ' > $TMPDIR/sepolicy.rule
 
-## 打印模块描述
+## 模块信息
 print_modname() {
     echo "_______________"
     echo "  ※ 作者信息 ※"
@@ -100,50 +98,50 @@ print_modname() {
     echo "_______________"
     echo "  ※ 模块信息 ※"
     echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
-    printf "%-15s %-s\n" "- 模块名称:" "$name"
+    echo "- 模块名称:" "$name"
     sleep 0.05
-    printf "%-15s %-s\n" "- 模块版本:" "$version"
+    echo "- 模块版本:" "$version"
     sleep 0.05
-    printf "%-15s %-s\n" "- 模块代号:" "$id"
+    echo "- 模块代号:" "$id"
     sleep 0.05
-    printf "%-15s %-s\n" "- 模块制作:" "余空"
+    echo "- 模块制作:" "余空"
     sleep 0.1
     echo "_______________"
     echo "  ※ 系统详情 ※"
     echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
     sleep 0.05
-    printf "%-15s %-s\n" "- 厂商信息:" "$Brand"
+    echo "- 厂商信息:" "$Brand"
     sleep 0.05
-      printf "%-15s %-s\n" "- 设备代号:" "$Device"
+    echo "- 设备代号:" "$Device"
     sleep 0.05
-    printf "%-15s %-s\n" "- 设备型号:" "$Model"
+    echo "- 设备型号:" "$Model"
     sleep 0.05
     case $Hardware in
-        mt*) printf "%-15s %-s\n" "- 销售型号:" "$Market_Name" && sleep 0.05 && printf "%-15s %-s\n" "- 芯片型号:" "$Hardware $(($(cat /sys/devices/system/cpu/kernel_max) + 1))核";;
+        mt*) echo "- 销售型号:" "$Market_Name" && sleep 0.05 && echo "- 芯片型号:" "$Hardware $(($(cat /sys/devices/system/cpu/kernel_max) + 1))核";;
         *) ;;
     esac
     sleep 0.05
-    printf "%-15s %-s\n" "- 芯片架构:" "$CPU_ABI"
+    echo "- 芯片架构:" "$CPU_ABI"
     sleep 0.05
-    printf "%-15s %-s\n" "- 安卓版本:" "Android $Android"
+    echo "- 安卓版本:" "Android $Android"
     sleep 0.05
-    printf "%-15s %-s\n" "- 系统版本:" "$Version"
+    echo "- 系统版本:" "$Version"
     sleep 0.05
-    printf "%-15s %-s\n" "- 基线版本:" "$Rom"
+    echo "- 基线版本:" "$Rom"
     sleep 0.05
-    printf "%-15s %-s\n" "- 内存大小:" "$(cat /proc/meminfo | head -n 1 | awk '{print $2/1000}')MB"
+    echo "- 内存大小:" "$(cat /proc/meminfo | head -n 1 | awk '{print $2/1000}')MB"
     sleep 0.05
-    printf "%-15s %-s\n" "- 闪存类型:" "$ROM_TYPE"
+    echo "- 闪存类型:" "$ROM_TYPE"
     sleep 0.05
-    printf "%-15s %-s\n" "- 闪存颗粒:" "$UFS_MODEL $Particles"
+    echo "- 闪存颗粒:" "$UFS_MODEL $Particles"
     sleep 0.05
-    printf "%-15s %-s\n" "- 内核版本:" "$Kernel"
+    echo "- 内核版本:" "$Kernel"
     sleep 0.1
 }
 
 
 ## 安装模块
-install_module() {
+on_install() {
     echo "_______________"
     echo "  ※ 模块安装 ※"
     echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
@@ -182,13 +180,6 @@ mount /data 2>/dev/null
 . /data/adb/magisk/util_functions.sh
 [ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
 
-TMPDIR=/dev/tmp
-rm -rf $TMPDIR 2>/dev/null
-mkdir -p $TMPDIR
-
-rm -rf $MODPATH 2>/dev/null
-mkdir -p $MODPATH
-
 cp -r $TMPDIR/module.prop $MODPATH/module.prop
 cp -r $TMPDIR/system.prop $MODPATH/system.prop
 cp -r $TMPDIR/service.sh $MODPATH/service.sh
@@ -196,17 +187,15 @@ cp -r $TMPDIR/uninstall.sh $MODPATH/uninstall.sh
 cp -r $TMPDIR/post-fs-data.sh $MODPATH/post-fs-data.sh
 cp -r $TMPDIR/sepolicy.rule $MODPATH/sepolicy.rule
 
-print_modname
 install_module
-
 
 echo "_______________"
 echo "  ※ 附加信息 ※"
 echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
-printf "%-15s %-s\n" "- 刷入时间:" "$Start_Time"
+echo "- 刷入时间:" "$Start_Time"
 End_Time=$(date "+%Y-%m-%d %H:%M:%S")
 Duration=$(echo $((Sleep_Time + $(date +%s -d "${End_Time}") - $(date +%s -d "${Start_Time}"))) | awk '{t=split("60 秒 60 分 24 时 999 天",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}')
-printf "%-15s %-s\n" "- 刷入耗时:" "$Duration"
+echo "- 刷入耗时:" "$Duration"
 echo "_______________"
 echo "  ※ 系统详情 ※"
 echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"

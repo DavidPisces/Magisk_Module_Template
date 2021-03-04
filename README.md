@@ -13,7 +13,7 @@ Magisk_Module_Template.zip
 │               ├── update-binary     <--- 这个文件你可以通过下载 module_installer.sh 得到官方版本
 │               └── updater-script    <--- 这个文件应仅包含字符串 "#MAGISK"
 │
-├── tools/*                           <---  一些必要的工具类文件
+├── tools/*                           <--- 实现一些扩展功能
 │
 ├── ...  /* 模块文件的其余部分 */
 │

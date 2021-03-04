@@ -1,20 +1,23 @@
 #!/sbin/sh
 ## 余空
+
+#################
+# Initialization
+#################
+umask 022
 Start_Time=$(date "+%Y-%m-%d %H:%M:%S")
 Print_Time=$(date "+%m.%d %H:%M")
-
 _grep_prop() {
-  local REGEX="s/$1=//p"
-  shift
-  local FILES=$@
-  [[ -z $FILES ]] && FILES="/system/build.prop /vendor/build.prop /product/build.prop"
-  sed -n $REGEX $FILES 2>/dev/null | head -n 1
+    local REGEX="s/$1=//p"
+    shift
+    local FILES=$@
+    [[ -z $FILES ]] && FILES="/system/build.prop /vendor/build.prop /product/build.prop"
+    sed -n $REGEX $FILES 2>/dev/null | head -n 1
 }
 Model=$(_grep_prop ro\.product\.model)
 [[ -z $Model ]] && Model=$(_grep_prop ro\.product\.vendor\.model)
 Brand=$(_grep_prop ro\.product\.model)
 [[ -z $Brand ]] && Brand=$(_grep_prop ro\.product\.vendor\.brand)
-
 Kernel=$(uname -r)
 Rom=$(getprop ro.build.display.id)
 Device=$(getprop ro.product.device)
@@ -24,20 +27,13 @@ CPU_ABI=$(getprop ro.product.cpu.abi)
 Android=$(getprop ro.build.version.release)
 Market_Name=$(getprop ro.product.marketname)
 Version=$(getprop ro.build.version.incremental)
-
 [[ -e /sys/block/sda/size ]] && ROM_TYPE="UFS" || ROM_TYPE="eMMC"
 [[ -e /proc/scsi/scsi ]] && UFS_MODEL=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $2}') && Particles=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $4}') || UFS_MODEL="unknown"
 
-umask 022
-TMPDIR=/dev/tmp
-rm -rf $TMPDIR 2>/dev/null
-mkdir -p $TMPDIR
-OUTFD=$2
-ZIPFILE=$3
 if [[ $Android -ge 11 ]]; then
-  PERSISTDIR=/dev/*/.magisk/mirror/persist
+    PERSISTDIR=/dev/*/.magisk/mirror/persist
 else
-  PERSISTDIR=/sbin/.magisk/mirror/persist
+    PERSISTDIR=/sbin/.magisk/mirror/persist
 fi
 
 
@@ -49,10 +45,9 @@ versionCode=210218
 author=余空
 description='模块介绍.此为模板.'
 
-Ver=版本：$version，刷入时间：$Print_Time
-
 
 ## 输出module.prop
+Ver=版本：$version，刷入时间：$Print_Time
 echo "id=$id
 name=$name
 version=$Ver
@@ -82,115 +77,111 @@ description=$description" > $TMPDIR/module.prop
 
 ## 打印模块描述
 print_modname() {
-  echo "______________"
-  echo "  ※ 作者信息 ※"
-  echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
-  echo " 8b        d8           88      a8P"
-  sleep 0.02
-  echo "  Y8,    ,8P            88    ,88'"
-  sleep 0.02
-  echo "   Y8,  ,8P             88  ,88\""
-  sleep 0.02
-  echo "    \"8aa8\"  88       88 88,d88'"
-  sleep 0.02
-  echo "     \`88'   88       88 8888\"88,"
-  sleep 0.02
-  echo "      88    88       88 88P   Y8b"
-  sleep 0.02
-  echo "      88    \"8a,   ,a88 88     \"88,"
-  sleep 0.02
-  echo "      88     \`\"YbbdP'Y8 88       Y8b"
-  echo "______________"
-  echo "  ※ 模块信息 ※"
-  echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
-  printf "%-15s %-s\n" "- 模块名称:" "$name"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 模块版本:" "$version"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 模块代号:" "$id"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 模块制作:" "余空"
-  sleep 0.1
-  echo "______________"
-  echo "  ※ 系统详情 ※"
-  echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 厂商信息:" "$Brand"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 设备代号:" "$Device"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 设备型号:" "$Model"
-  sleep 0.05
-  case $Hardware in
-    mt*) printf "%-15s %-s\n" "- 销售型号:" "$Market_Name" && sleep 0.05 && printf "%-15s %-s\n" "- 芯片型号:" "$Hardware $(($(cat /sys/devices/system/cpu/kernel_max) + 1))核";;
-    *) ;;
-  esac
-  sleep 0.05
-  printf "%-15s %-s\n" "- 芯片架构:" "$CPU_ABI"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 安卓版本:" "Android $Android"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 系统版本:" "$Version"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 基线版本:" "$Rom"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 内存大小:" "$(cat /proc/meminfo | head -n 1 | awk '{print $2/1000}')MB"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 闪存类型:" "$ROM_TYPE"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 闪存颗粒:" "$UFS_MODEL $Particles"
-  sleep 0.05
-  printf "%-15s %-s\n" "- 内核版本:" "$Kernel"
-  sleep 0.1
+    echo "_______________"
+    echo "  ※ 作者信息 ※"
+    echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
+    echo " 8b        d8           88      a8P"
+    sleep 0.02
+    echo "  Y8,    ,8P            88    ,88'"
+    sleep 0.02
+    echo "   Y8,  ,8P             88  ,88\""
+    sleep 0.02
+    echo "    \"8aa8\"  88       88 88,d88'"
+    sleep 0.02
+    echo "     \`88'   88       88 8888\"88,"
+    sleep 0.02
+    echo "      88    88       88 88P   Y8b"
+    sleep 0.02
+    echo "      88    \"8a,   ,a88 88     \"88,"
+    sleep 0.02
+    echo "      88     \`\"YbbdP'Y8 88       Y8b"
+    echo "_______________"
+    echo "  ※ 模块信息 ※"
+    echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
+    printf "%-15s %-s\n" "- 模块名称:" "$name"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 模块版本:" "$version"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 模块代号:" "$id"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 模块制作:" "余空"
+    sleep 0.1
+    echo "_______________"
+    echo "  ※ 系统详情 ※"
+    echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 厂商信息:" "$Brand"
+    sleep 0.05
+      printf "%-15s %-s\n" "- 设备代号:" "$Device"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 设备型号:" "$Model"
+    sleep 0.05
+    case $Hardware in
+        mt*) printf "%-15s %-s\n" "- 销售型号:" "$Market_Name" && sleep 0.05 && printf "%-15s %-s\n" "- 芯片型号:" "$Hardware $(($(cat /sys/devices/system/cpu/kernel_max) + 1))核";;
+        *) ;;
+    esac
+    sleep 0.05
+    printf "%-15s %-s\n" "- 芯片架构:" "$CPU_ABI"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 安卓版本:" "Android $Android"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 系统版本:" "$Version"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 基线版本:" "$Rom"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 内存大小:" "$(cat /proc/meminfo | head -n 1 | awk '{print $2/1000}')MB"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 闪存类型:" "$ROM_TYPE"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 闪存颗粒:" "$UFS_MODEL $Particles"
+    sleep 0.05
+    printf "%-15s %-s\n" "- 内核版本:" "$Kernel"
+    sleep 0.1
+}
+
+# echo before loading util_functions
+ui_print() { echo "$1"; }
+
+## 安装模块
+install_module() {
+    echo "_______________"
+    echo "  ※ 模块安装 ※"
+    echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
+    echo "- 正在刷入"
+    unzip -o "$ZIPFILE" -x 'META-INF/*' -d $MODPATH >&2
+    echo
+    echo "- 设置权限"
+    set_perm_recursive $MODPATH 0 0 0755 0644
 }
 
 
-## 执行安装模块
-on_install() {
-  echo "______________"
-  echo "  ※ 模块安装 ※"
-  echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
-  echo "- 正在刷入"
-  unzip -o "$ZIPFILE" -x 'META-INF/*' -d $MODPATH >&2
-  echo
-  echo "- 设置权限"
-  set_perm_recursive $MODPATH 0 0 0755 0644
-}
-
-
-## 不支持刷入提示
+## 不支持刷入
 require_new_magisk() {
-  echo
-  echo "- 当前模块不支持此Magisk版本."
-  echo "- 请安装 Magisk v20.3+!"
-  echo
-  echo "- 或Magisk环境不完整."
-  echo "- 请修复Magisk环境!"
-  exit 1
+    echo
+    echo "- 当前模块不支持此Magisk版本."
+    echo "- 请安装 Magisk v20.4+!"
+    echo
+    echo "- 或Magisk环境不完整."
+    echo "- 请修复Magisk环境!"
+    exit 1
 }
+
+
+#########################
+# Load util_functions.sh
+#########################
+OUTFD=$2
+ZIPFILE=$3
 
 mount /data 2>/dev/null
 
 [ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
 . /data/adb/magisk/util_functions.sh
-[ $MAGISK_VER_CODE -gt 18100 ] || require_new_magisk
+[ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
 
-setup_flashable
-
-mount_partitions
-
-api_level_arch_detect
-
-$BOOTMODE && boot_actions || recovery_actions
-
-unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
-[ ! -f $TMPDIR/module.prop ] && abort "! 从 zip 中提取文件失败!"
-
-$BOOTMODE && MODDIRNAME=modules_update || MODDIRNAME=modules
-MODULEROOT=$NVBASE/$MODDIRNAME
-MODID=`grep_prop id $TMPDIR/module.prop`
-MODPATH=$MODULEROOT/$MODID
-MODNAME=`grep_prop name $TMPDIR/module.prop`
+TMPDIR=/dev/tmp
+rm -rf $TMPDIR 2>/dev/null
+mkdir -p $TMPDIR
 
 rm -rf $MODPATH 2>/dev/null
 mkdir -p $MODPATH
@@ -202,43 +193,18 @@ cp -r $TMPDIR/uninstall.sh $MODPATH/uninstall.sh
 cp -r $TMPDIR/post-fs-data.sh $MODPATH/post-fs-data.sh
 
 print_modname
+install_module
 
-on_install
 
-for TARGET in $REPLACE; do
-  echo "- 正在删除目标文件：$TARGET"
-  mktouch $MODPATH$TARGET/.replace
-done
-
-if $BOOTMODE; then
-  mktouch $NVBASE/modules/$MODID/update
-  cp -af $MODPATH/module.prop $NVBASE/modules/$MODID/module.prop
-fi
-
-if [ -f $MODPATH/sepolicy.rule -a -e $PERSISTDIR ]; then
-  echo "- 安装自定义sepolicy补丁"
-  PERSISTMOD=$PERSISTDIR/magisk/$MODID
-  mkdir -p $PERSISTMOD
-  cp -af $MODPATH/sepolicy.rule $PERSISTMOD/sepolicy.rule
-fi
-
-rm -rf \
-$MODPATH/system/placeholder $MODPATH/customize.sh \
-$MODPATH/README.md $MODPATH/.git* 2>/dev/null
-
-cd /
-$BOOTMODE || recovery_cleanup
-rm -rf $TMPDIR
-
-echo "______________"
+echo "_______________"
 echo "  ※ 附加信息 ※"
-echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
+echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
 printf "%-15s %-s\n" "- 刷入时间:" "$Start_Time"
 End_Time=$(date "+%Y-%m-%d %H:%M:%S")
 Duration=$(echo $((Sleep_Time + $(date +%s -d "${End_Time}") - $(date +%s -d "${Start_Time}"))) | awk '{t=split("60 秒 60 分 24 时 999 天",a);for(n=1;n<t;n+=2){if($1==0)break;s=$1%a[n]a[n+1]s;$1=int($1/a[n])}print s}')
 printf "%-15s %-s\n" "- 刷入耗时:" "$Duration"
-echo "______________"
+echo "_______________"
 echo "  ※ 系统详情 ※"
-echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
+echo "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
 echo "- 请重启设备."
 exit 0

@@ -5,10 +5,6 @@
 # 初始化
 #########
 umask 022
-TMPDIR=/dev/tmp
-rm -rf $TMPDIR 2>/dev/null
-mkdir -p $TMPDIR
-
 
 Start_Time=$(date "+%Y-%m-%d %H:%M:%S")
 Print_Time=$(date "+%m.%d %H:%M")
@@ -38,7 +34,7 @@ Version=$(getprop ro.build.version.incremental)
 [[ -e /proc/scsi/scsi ]] && UFS_MODEL=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $2}') && Particles=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $4}') || UFS_MODEL="unknown"
 
 
-## 定义module.prop
+# 定义module.prop
 id=YuKong_Module
 name='余空 模板'
 version=0218
@@ -47,7 +43,7 @@ author=余空
 description='模块介绍.此为模板.'
 
 
-## 输出module.prop
+# 输出module.prop
 Ver=版本：$version，刷入时间：$Print_Time
 
 echo "id=$id
@@ -58,28 +54,28 @@ author=$author
 description=$description" > $TMPDIR/module.prop
 
 
-## 输出system.prop
+# 输出system.prop
 #echo '    ' > $TMPDIR/system.prop
 
 
-## 输出service.sh
+# 输出service.sh
 #echo '#!/system/bin/sh
 #MODDIR=${0%/*}' > $TMPDIR/service.sh
 
 
-## 输出uninstall.sh
+# 输出uninstall.sh
 #echo '#!/system/bin/sh
 #MODDIR=${0%/*}' > $TMPDIR/uninstall.sh
 
 
-## 输出post-fs-data.sh
+# 输出post-fs-data.sh
 #echo '#!/system/bin/sh
 #MODDIR=${0%/*}' > $TMPDIR/post-fs-data.sh
 
 ##sepolicy.rule
 #echo '    ' > $TMPDIR/sepolicy.rule
 
-## 模块信息
+# 模块信息
 print_modname() {
     echo "_______________"
     echo "  ※ 作者信息 ※"
@@ -144,7 +140,7 @@ print_modname() {
 }
 
 
-## 安装模块
+# 安装模块
 on_install() {
     echo "_______________"
     echo "  ※ 模块安装 ※"
@@ -157,7 +153,7 @@ on_install() {
 }
 
 
-## 不支持刷入
+# 不支持刷入
 require_new_magisk() {
     echo
     echo "- 当前模块不支持此Magisk版本."
@@ -168,6 +164,8 @@ require_new_magisk() {
     exit 1
 }
 
+# echo before loading util_functions
+ui_print() { echo "$1"; }
 
 #########################
 # 加载 util_functions.sh
@@ -192,22 +190,35 @@ fi
 
 [[ $MAGISK_VER_CODE -lt 20400 ]] && require_new_magisk
 
+rm -rf $TMPDIR
+mkdir -p $TMPDIR
+cd $TMPDIR
+
 setup_flashable
 mount_partitions
 api_level_arch_detect
 
-$BOOTMODE && boot_actions || recovery_actions
+# Setup busybox and binaries
+if $BOOTMODE; then
+    boot_actions
+else
+    recovery_actions
+fi
 
+# Extract prop file
 unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
 [ ! -f $TMPDIR/module.prop ] && abort "! 从 zip 中提取文件失败!"
 
-$BOOTMODE && MODDIRNAME=modules_update || MODDIRNAME=modules
-MODULEROOT=$NVBASE/$MODDIRNAME
+local MODDIRNAME=modules
+$BOOTMODE && MODDIRNAME=modules_update
+local MODULEROOT=$NVBASE/$MODDIRNAME
 MODID=`grep_prop id $TMPDIR/module.prop`
-MODPATH=$MODULEROOT/$MODID
 MODNAME=`grep_prop name $TMPDIR/module.prop`
+MODAUTH=`grep_prop author $TMPDIR/module.prop`
+MODPATH=$MODULEROOT/$MODID
 
-rm -rf $MODPATH 2>/dev/null
+# Create mod paths
+rm -rf $MODPATH
 mkdir -p $MODPATH
 
 cp -r $TMPDIR/module.prop $MODPATH/module.prop
@@ -216,19 +227,24 @@ cp -r $TMPDIR/service.sh $MODPATH/service.sh
 cp -r $TMPDIR/uninstall.sh $MODPATH/uninstall.sh
 cp -r $TMPDIR/post-fs-data.sh $MODPATH/post-fs-data.sh
 cp -r $TMPDIR/sepolicy.rule $MODPATH/sepolicy.rule
+
+# Callbacks
 print_modname
 on_install
 
+# Handle replace folders
 for TARGET in $REPLACE; do
     echo "- 正在删除目标文件：$TARGET"
     mktouch $MODPATH$TARGET/.replace
 done
 
 if $BOOTMODE; then
+    # Update info for Magisk Manager
     mktouch $NVBASE/modules/$MODID/update
     cp -af $MODPATH/module.prop $NVBASE/modules/$MODID/module.prop
 fi
 
+# Copy over custom sepolicy rules
 if [ -f $MODPATH/sepolicy.rule -a -e $PERSISTDIR ]; then
     echo "- 安装自定义sepolicy补丁"
     PERSISTMOD=$PERSISTDIR/magisk/$MODID
@@ -236,6 +252,7 @@ if [ -f $MODPATH/sepolicy.rule -a -e $PERSISTDIR ]; then
     cp -af $MODPATH/sepolicy.rule $PERSISTMOD/sepolicy.rule
 fi
 
+# Remove stuffs that don't belong to modules
 rm -rf \
 $MODPATH/system/placeholder $MODPATH/customize.sh \
 $MODPATH/README.md $MODPATH/.git* 2>/dev/null

@@ -4,7 +4,7 @@
 
 `该Magisk模版的结构:`
 ```
-Magisk_Module_Template.zip
+Magisk_Module_Template-YuK.zip
 │
 ├── META-INF
 │   └── com

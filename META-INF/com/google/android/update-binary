@@ -12,7 +12,6 @@ NVBASE=/data/adb
 TMPDIR=/dev/tmp
 rm -rf $TMPDIR 2>/dev/null
 mkdir -p $TMPDIR
-cd $TMPDIR
 
 _grep_prop() {
   local REGEX="s/$1=//p"

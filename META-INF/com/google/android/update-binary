@@ -243,6 +243,7 @@ $MODPATH/README.md $MODPATH/.git* 2>/dev/null
 
 cd /
 $BOOTMODE || recovery_cleanup
+rm -rf $MODPATH/tools
 rm -rf $TMPDIR
 
 echo "_______________"

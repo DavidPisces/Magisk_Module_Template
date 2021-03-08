@@ -9,7 +9,7 @@ Start_Time=$(date "+%Y-%m-%d %H:%M:%S")
 Print_Time=$(date "+%m.%d %H:%M")
 
 NVBASE=/data/adb
-#TMPDIR=/dev/tmp
+TMPDIR=/dev/tmp
 rm -rf $TMPDIR 2>/dev/null
 mkdir -p $TMPDIR
 cd $TMPDIR

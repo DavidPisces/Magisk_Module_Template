@@ -237,6 +237,10 @@ if [[ -f $MODPATH/sepolicy.rule -a -e $PERSISTDIR ]]; then
     cp -af $MODPATH/sepolicy.rule $PERSISTMOD/sepolicy.rule
 fi
 
+rm -rf \
+$MODPATH/system/placeholder \
+$MODPATH/README.md $MODPATH/.git* 2>/dev/null
+
 cd /
 $BOOTMODE || recovery_cleanup
 rm -rf $TMPDIR

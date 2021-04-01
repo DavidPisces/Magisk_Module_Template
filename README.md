@@ -13,7 +13,6 @@ Magisk_Module_Template-YuK.zip
 │               ├── update-binary     <--- 所有操作均在这个文件内设定
 │               └── updater-script    <--- 这个文件仅包含字符串 "#MAGISK"
 │
-├── tools/*                           <--- 实现一些扩展功能
 │
 ├── ...  /* 模块文件的其余部分 */
 │

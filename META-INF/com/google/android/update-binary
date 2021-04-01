@@ -16,14 +16,14 @@ _grep_prop() {
     local REGEX="s/$1=//p"
     shift
     local FILES=$@
-    [[ -z $FILES ]] && FILES="/system/build.prop /vendor/build.prop /product/build.prop"
+    [ -z $FILES ] && FILES="/system/build.prop /vendor/build.prop /product/build.prop"
     sed -n $REGEX $FILES 2>/dev/null | head -n 1
 }
 
 Model=$(_grep_prop ro\.product\.model)
-[[ -z $Model ]] && Model=$(_grep_prop ro\.product\.vendor\.model)
+[ -z $Model ] && Model=$(_grep_prop ro\.product\.vendor\.model)
 Brand=$(_grep_prop ro\.product\.model)
-[[ -z $Brand ]] && Brand=$(_grep_prop ro\.product\.vendor\.brand)
+[ -z $Brand ] && Brand=$(_grep_prop ro\.product\.vendor\.brand)
 Kernel=$(uname -r)
 Rom=$(getprop ro.build.display.id)
 Device=$(getprop ro.product.device)
@@ -33,8 +33,8 @@ CPU_ABI=$(getprop ro.product.cpu.abi)
 Android=$(getprop ro.build.version.release)
 Market_Name=$(getprop ro.product.marketname)
 Version=$(getprop ro.build.version.incremental)
-[[ -e /sys/block/sda/size ]] && ROM_TYPE="UFS" || ROM_TYPE="eMMC"
-[[ -e /proc/scsi/scsi ]] && UFS_MODEL=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $2}') && Particles=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $4}') || UFS_MODEL="unknown"
+[ -e /sys/block/sda/size ] && ROM_TYPE="UFS" || ROM_TYPE="eMMC"
+[ -e /proc/scsi/scsi ] && UFS_MODEL=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $2}') && Particles=$(sed -n 3p /proc/scsi/scsi | awk '/Vendor/{print $4}') || UFS_MODEL="unknown"
 
 if [[ $Android -ge 11 ]]; then
     PERSISTDIR=/dev/*/.magisk/mirror/persist
@@ -119,18 +119,10 @@ mount /data 2>/dev/null
 
 unzip -o "$ZIPFILE" 'tools/*' -d $TMPDIR >&2
 
-if [[ -f /data/adb/magisk/util_functions.sh ]]; then
-    . /data/adb/magisk/util_functions.sh
-else
-    if [[ -f $TMPDIR/tools/util_functions.sh ]]; then
-        . $TMPDIR/tools/util_functions.sh
-    else
-        ui_print "! 缺少预置脚本,无法完成刷入."
-        exit 1
-    fi
-fi
+[ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
+. /data/adb/magisk/util_functions.sh
 
-[[ $MAGISK_VER_CODE -lt 20400 ]] && require_new_magisk
+[ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
 
 setup_flashable
 mount_partitions
@@ -143,7 +135,7 @@ else
 fi
 
 unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
-[[ ! -f $TMPDIR/module.prop ]] && abort "! 从 zip 中提取文件失败."
+[ ! -f $TMPDIR/module.prop ] && abort "! 从 zip 中提取文件失败."
 
 $BOOTMODE && MODDIRNAME=modules_update || MODDIRNAME=modules
 MODULEROOT=$NVBASE/$MODDIRNAME
@@ -193,7 +185,7 @@ print_modname() {
 
 Print() {
     echo "$@"
-	  sleep 0.02
+    sleep 0.02
 }
 
 print_modname
@@ -209,7 +201,7 @@ if $BOOTMODE; then
     cp -af $MODPATH/module.prop $NVBASE/modules/$MODID/module.prop
 fi
 
-if [[ -f $MODPATH/sepolicy.rule -a -e $PERSISTDIR ]]; then
+if [ -f $MODPATH/sepolicy.rule -a -e $PERSISTDIR ]; then
     echo "- 安装自定义sepolicy补丁."
     PERSISTMOD=$PERSISTDIR/magisk/$MODID
     mkdir -p $PERSISTMOD
@@ -222,7 +214,6 @@ $MODPATH/README.md $MODPATH/.git* 2>/dev/null
 
 cd /
 $BOOTMODE || recovery_cleanup
-rm -rf $MODPATH/tools
 rm -rf $TMPDIR
 
 Print "_______________"

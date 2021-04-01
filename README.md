@@ -2,7 +2,7 @@
 
 **仅自用**
 
-`该Magisk模版的结构:`
+### `该Magisk模版的结构`
 ```
 Magisk_Module_Template-YuK.zip
 │

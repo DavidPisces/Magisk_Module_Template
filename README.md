@@ -10,7 +10,7 @@ Magisk_Module_Template-YuK.zip
 │   └── com
 │       └── google
 │           └── android
-│               ├── update-binary     <--- 所有操作均在这个文件内设定
+│               ├── update-binary     <--- 所有操作均在这个文件内设定(这本身并不符合官方设定，请勿使用)
 │               └── updater-script    <--- 这个文件仅包含字符串 "#MAGISK"
 │
 │

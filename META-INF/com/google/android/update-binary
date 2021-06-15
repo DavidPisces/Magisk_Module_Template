@@ -54,7 +54,7 @@ Print_Time=$(date "+%m.%d %H:%M")
 TMPDIR=/dev/tmp
 rm -rf $TMPDIR 2>/dev/null
 mkdir -p $TMPDIR
-
+mount /data 2>/dev/null
 OUTFD=$2
 ZIPFILE=$3
 
@@ -93,11 +93,19 @@ else
     PERSISTDIR=/sbin/.magisk/mirror/persist
 fi
 
-mount /data 2>/dev/null
+require_new_magisk() {
+    Print
+    Print "- 当前模块不支持此Magisk版本."
+    Print "- 请安装 Magisk v20.4+!"
+    Print
+    Print "- 或Magisk环境不完整."
+    Print "- 请修复Magisk环境!"
+    Print
+    exit 1
+}
 
 [ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
 . /data/adb/magisk/util_functions.sh
-
 [ $MAGISK_VER_CODE -lt 20400 ] && require_new_magisk
 
 setup_flashable
@@ -110,6 +118,13 @@ else
     recovery_actions
 fi
 
+Ver=版本:$version,刷入时间:$Print_Time
+echo "id=$id
+name=$name
+version=$Ver
+versionCode=$versionCode
+author=$author
+description=$description" > $TMPDIR/module.prop
 unzip -o "$ZIPFILE" module.prop -d $TMPDIR >&2
 [ ! -f $TMPDIR/module.prop ] && abort "! 从 zip 中提取文件失败."
 
@@ -121,26 +136,6 @@ MODPATH=$MODULEROOT/$MODID
 rm -rf $MODPATH 2>/dev/null
 mkdir -p $MODPATH
 cp -r $TMPDIR/* $MODPATH/
-
-Ver=版本：$version,刷入时间：$Print_Time
-
-echo "id=$id
-name=$name
-version=$Ver
-versionCode=$versionCode
-author=$author
-description=$description" > $TMPDIR/module.prop
-
-require_new_magisk() {
-    Print
-    Print "- 当前模块不支持此Magisk版本."
-    Print "- 请安装 Magisk v20.4+!"
-    Print
-    Print "- 或Magisk环境不完整."
-    Print "- 请修复Magisk环境!"
-    Print
-    exit 1
-}
 
 print_modname() {
     Print "- Powered By Magisk"

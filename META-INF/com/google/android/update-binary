@@ -1,9 +1,52 @@
 #!/sbin/sh
 ## 余空
 
-#########
-# 初始化
-#########
+# 定义module.prop
+id=YuKong_Module
+name='余空 模板'
+version=0615
+versionCode=210615
+author=余空
+description='模块介绍.此为模板.'
+
+
+# 输出system.prop
+#echo '    ' > $TMPDIR/system.prop
+
+
+# 输出service.sh
+#echo '#!/system/bin/sh
+#MODDIR=${0%/*}' > $TMPDIR/service.sh
+
+
+# 输出uninstall.sh
+#echo '#!/system/bin/sh
+#MODDIR=${0%/*}' > $TMPDIR/uninstall.sh
+
+
+# 输出post-fs-data.sh
+#echo '#!/system/bin/sh
+#MODDIR=${0%/*}' > $TMPDIR/post-fs-data.sh
+
+# sepolicy.rule
+#echo '    ' > $TMPDIR/sepolicy.rule
+
+
+# 安装
+on_install() {
+    Print "_______________"
+    Print "  ※ 模块安装 ※"
+    Print "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
+    Print "- 正在刷入"
+    unzip -o "$ZIPFILE" -x 'META-INF/*' -d $MODPATH >&2
+    Print "- 设置权限"
+    set_perm_recursive $MODPATH 0 0 0755 0644
+}
+
+
+#############
+# 下面不用动 #
+#############
 umask 022
 Start_Time=$(date "+%Y-%m-%d %H:%M:%S")
 Print_Time=$(date "+%m.%d %H:%M")
@@ -11,6 +54,14 @@ Print_Time=$(date "+%m.%d %H:%M")
 TMPDIR=/dev/tmp
 rm -rf $TMPDIR 2>/dev/null
 mkdir -p $TMPDIR
+
+OUTFD=$2
+ZIPFILE=$3
+
+Print() {
+    echo "$@"
+    sleep 0.02
+}
 
 _grep_prop() {
     local REGEX="s/$1=//p"
@@ -42,82 +93,7 @@ else
     PERSISTDIR=/sbin/.magisk/mirror/persist
 fi
 
-# 定义module.prop
-id=YuKong_Module
-name='余空 模板'
-version=0218
-versionCode=210218
-author=余空
-description='模块介绍.此为模板.'
-
-
-# 输出module.prop
-Ver=版本：$version，刷入时间：$Print_Time
-
-echo "id=$id
-name=$name
-version=$Ver
-versionCode=$versionCode
-author=$author
-description=$description" > $TMPDIR/module.prop
-
-
-# 输出system.prop
-#echo '    ' > $TMPDIR/system.prop
-
-
-# 输出service.sh
-#echo '#!/system/bin/sh
-#MODDIR=${0%/*}' > $TMPDIR/service.sh
-
-
-# 输出uninstall.sh
-#echo '#!/system/bin/sh
-#MODDIR=${0%/*}' > $TMPDIR/uninstall.sh
-
-
-# 输出post-fs-data.sh
-#echo '#!/system/bin/sh
-#MODDIR=${0%/*}' > $TMPDIR/post-fs-data.sh
-
-##sepolicy.rule
-#echo '    ' > $TMPDIR/sepolicy.rule
-
-
-# 安装模块
-on_install() {
-    Print "_______________"
-    Print "  ※ 模块安装 ※"
-    Print "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
-    Print "- 正在刷入"
-    unzip -o "$ZIPFILE" -x 'META-INF/*' 'tools/*' -d $MODPATH >&2
-    Print "- 设置权限"
-    set_perm_recursive $MODPATH 0 0 0755 0644
-}
-
-
-# 不支持刷入
-require_new_magisk() {
-    echo
-    echo "- 当前模块不支持此Magisk版本."
-    echo "- 请安装 Magisk v20.4+!"
-    echo
-    echo "- 或Magisk环境不完整."
-    echo "- 请修复Magisk环境!"
-    echo
-    exit 1
-}
-
-
-#########################
-# 加载 util_functions.sh
-#########################
-OUTFD=$2
-ZIPFILE=$3
-
 mount /data 2>/dev/null
-
-unzip -o "$ZIPFILE" 'tools/*' -d $TMPDIR >&2
 
 [ -f /data/adb/magisk/util_functions.sh ] || require_new_magisk
 . /data/adb/magisk/util_functions.sh
@@ -146,6 +122,26 @@ rm -rf $MODPATH 2>/dev/null
 mkdir -p $MODPATH
 cp -r $TMPDIR/* $MODPATH/
 
+Ver=版本：$version,刷入时间：$Print_Time
+
+echo "id=$id
+name=$name
+version=$Ver
+versionCode=$versionCode
+author=$author
+description=$description" > $TMPDIR/module.prop
+
+require_new_magisk() {
+    Print
+    Print "- 当前模块不支持此Magisk版本."
+    Print "- 请安装 Magisk v20.4+!"
+    Print
+    Print "- 或Magisk环境不完整."
+    Print "- 请修复Magisk环境!"
+    Print
+    exit 1
+}
+
 print_modname() {
     Print "- Powered By Magisk"
     Print "_______________"
@@ -165,7 +161,7 @@ print_modname() {
     Print "- 模块名称: $name"
     Print "- 模块版本: $version"
     Print "- 模块代号: $id"
-    Print "- 模块制作: 余空"
+    Print "- 模块制作: $auther"
     Print "_______________"
     Print "  ※ 系统详情 ※"
     Print "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
@@ -181,11 +177,6 @@ print_modname() {
     Print "- 内存大小: $(cat /proc/meminfo | head -n 1 | awk '{print $2/1000}')MB"
     Print "- 闪存颗粒: $UFS_MODEL $Particles"
     Print "- 内核版本: $Kernel"
-}
-
-Print() {
-    echo "$@"
-    sleep 0.02
 }
 
 print_modname

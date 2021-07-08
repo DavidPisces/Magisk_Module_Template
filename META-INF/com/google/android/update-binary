@@ -10,29 +10,6 @@ author=余空
 description='模块介绍.此为模板.'
 
 
-# 输出system.prop
-#echo '    ' > $TMPDIR/system.prop
-
-
-# 输出service.sh
-#echo '#!/system/bin/sh
-#MODDIR=${0%/*}' > $TMPDIR/service.sh
-
-
-# 输出uninstall.sh
-#echo '#!/system/bin/sh
-#MODDIR=${0%/*}' > $TMPDIR/uninstall.sh
-
-
-# 输出post-fs-data.sh
-#echo '#!/system/bin/sh
-#MODDIR=${0%/*}' > $TMPDIR/post-fs-data.sh
-
-# sepolicy.rule
-#echo '    ' > $TMPDIR/sepolicy.rule
-
-
-# 安装
 on_install() {
     Print "_______________"
     Print "  ※ 模块安装 ※"
@@ -43,10 +20,6 @@ on_install() {
     set_perm_recursive $MODPATH 0 0 0755 0644
 }
 
-
-#############
-## 不用改区域
-#############
 umask 022
 Start_Time=$(date "+%Y-%m-%d %H:%M:%S")
 Print_Time=$(date "+%m.%d %H:%M")
@@ -63,18 +36,6 @@ Print() {
     sleep 0.02
 }
 
-_grep_prop() {
-    local REGEX="s/$1=//p"
-    shift
-    local FILES=$@
-    [ -z $FILES ] && FILES="/system/build.prop /vendor/build.prop /product/build.prop"
-    sed -n $REGEX $FILES 2>/dev/null | head -n 1
-}
-
-Model=$(_grep_prop ro\.product\.model)
-[ -z $Model ] && Model=$(_grep_prop ro\.product\.vendor\.model)
-Brand=$(_grep_prop ro\.product\.model)
-[ -z $Brand ] && Brand=$(_grep_prop ro\.product\.vendor\.brand)
 Kernel=$(uname -r)
 Rom=$(getprop ro.build.display.id)
 Device=$(getprop ro.product.device)
@@ -118,15 +79,34 @@ else
     recovery_actions
 fi
 
-Ver=版本:$version,刷入时间:$Print_Time
+Ver=$version,刷入时间:$Print_Time
+
 echo "id=$id
 name=$name
 version=$Ver
 versionCode=$versionCode
 author=$author
 description=$description" > $TMPDIR/module.prop
-[ ! -f $TMPDIR/module.prop ] && abort "! 从 zip 中提取文件失败."
 
+# 输出system.prop
+#echo '    ' > $TMPDIR/system.prop
+
+# 输出service.sh
+#echo '#!/system/bin/sh
+#MODDIR=${0%/*}' > $TMPDIR/service.sh
+
+# 输出uninstall.sh
+#echo '#!/system/bin/sh
+#MODDIR=${0%/*}' > $TMPDIR/uninstall.sh
+
+# 输出post-fs-data.sh
+#echo '#!/system/bin/sh
+#MODDIR=${0%/*}' > $TMPDIR/post-fs-data.sh
+
+# sepolicy.rule
+#echo '    ' > $TMPDIR/sepolicy.rule
+
+[ ! -f $TMPDIR/module.prop ] && abort "! 从 zip 中提取文件失败."
 $BOOTMODE && MODDIRNAME=modules_update || MODDIRNAME=modules
 MODULEROOT=$NVBASE/$MODDIRNAME
 MODID=`grep_prop id $TMPDIR/module.prop`
@@ -159,9 +139,7 @@ print_modname() {
     Print "_______________"
     Print "  ※ 系统详情 ※"
     Print "¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯"
-    Print "- 厂商信息: $Brand"
     Print "- 设备代号: $Device"
-    Print "- 设备型号: $Model"
     Print "- 销售型号: $Market_Name"
     Print "- 芯片型号: $Hardware $(($(cat /sys/devices/system/cpu/kernel_max) + 1))核"
     Print "- 芯片架构: $CPU_ABI"
